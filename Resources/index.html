@@ -1,0 +1,155 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset=utf-8>
+        <title></title>
+        <link href="jquery-ui.css" rel="stylesheet">
+        <script type="text/javascript" src="jquery-1.7.2.min.js"></script>
+        <script type="text/javascript" src="jquery-ui.js"></script>
+        <style type="text/css">
+            .div-draggable{border: 1px solid;height: 20px;width: 150px;margin-bottom: 8px;border-radius: 5px;}
+            .div-droppable{border: 1px solid;height: 50px;width: 400px;margin: 0px 5px 8px 5px;border-radius: 5px;position: relative;}
+            #left{float: left;margin-right: 5px;}
+            #right {float: left;}
+            #container {float: left;}
+        </style>
+    </head>
+    <body>
+        <div>
+            <div id="left"></div>
+
+            <div class="parent" id="container"></div>
+
+            <div id="right"></div>
+        </div>
+
+        <script>
+            var players = {
+                'player1': '1',
+                'player2': '2',
+                'player3': '3',
+                'player4': '4',
+                'player5': '5',
+                'player6': '6',
+                'player7': '7',
+                'player8': '8',
+                'player9': '9',
+                'player10': '10',
+                'player1' : '1',
+                        'player2' : '2',
+                        'player3' : '3',
+                        'player4' : '4',
+                        'player5' : '5',
+                        'player6' : '6',
+                        'player7' : '7',
+                        'player8' : '8',
+                        'player9' : '9',
+                        'player10' : '10',
+                        'player1' : '1',
+                        'player2' : '2',
+                        'player3' : '3',
+                        'player4' : '4',
+                        'player5' : '5',
+                        'player6' : '6',
+                        'player7' : '7',
+                        'player8' : '8',
+                        'player9' : '9',
+                        'player10' : '10',
+                        'player1' : '1',
+                        'player2' : '2',
+                        'player3' : '3',
+                        'player4' : '4',
+                        'player5' : '5',
+                        'player6' : '6',
+                        'player7' : '7',
+                        'player8' : '8',
+                        'player9' : '9',
+                        'player10' : '10'
+            };
+            var leftoutput = "", rightoutput = "", container = "";
+            var teamData = [];//player data saving array initialization
+            for (x = 1; x <= 40; x++) {
+                teamData['droppable' + x] = {'team': {'player1': null, 'player2': null}};
+                leftoutput = leftoutput + '<div id="left' + x + '" data-playerid="' + x + '" data-position="left" class="draggable div-draggable">' + x + '</div>';
+                rightoutput = rightoutput + '<div id="right' + x + '" data-playerid="' + x + '" data-position="right" class="draggable div-draggable">' + x + '</div>';
+            }
+            $('#left').html(leftoutput);
+            $('#right').html(rightoutput);
+
+            for (y = 1; y <= 20; y++) {
+                container = container + '<div class="div-droppable" id="droppable' + y + '"></div>'
+            }
+            $('#container').html(container);
+
+        </script>
+        <script>
+            var n = new Array();
+            var position1, position2, player1, player2, playerid, playerid;
+            var id;
+            $(".draggable").draggable({revert: true, helper: "clone"});//making a div draggable
+            //the droppable function
+            $(".div-droppable").droppable({
+                drop: function(event, ui) {
+                    revertFalse(ui.draggable.attr('data-playerid'));
+                    id = $(this).attr('id');//this variable will store the id of the div where other div is dragged and dropped.that means this variable holds the id of the div which contains the dragged div
+                    playerid = ui.draggable.attr('data-playerid');//this variable holds the id of the div which have been dragged
+                    //checking that whether the droppable div already contains something or not
+                    if (n[id] == undefined) {
+                        n[id] = 1;//if droppable div doesn't contain anything
+                        teamData[id].team.player1 = playerid;//playerid will be th value for the teams' player
+                        position1 = ui.draggable.attr('data-position');//this variable holds the position of the player list.
+                        player1 = ui.draggable.attr('id');//this variable holds the div id of the first dragged player (div)
+                        hideSelectedPlayer(position1, playerid);
+                        var dropped = ui.draggable;
+                        var droppedOn = $(this);
+                        $(dropped).detach().css({top: 13, left: 20, position: 'absolute'}).appendTo(droppedOn);
+                    } else {
+                        position2 = ui.draggable.attr('data-position');//this variable holds the position of the player list.
+                        //checking whether both players are from the same (side) list
+                        if (position1 == position2) {
+                            revertPlayer(position2);
+                            console.log('select player from different side');
+                        } else {
+                            n[id] = n[id] + 1;
+                            //restricting to drop multiple player
+                            if (n[id] > 2) {
+                                revertPlayer(position2);
+                                n[id] = n[id] - 1;
+                                console.log('Only 2 players allowed!');
+                            } else {
+                                player2 = ui.draggable.attr('id');//this variable holds the div id of the first dragged player (div)
+                                teamData[id].team.player2 = playerid;//playerid will be th value for the teams' player
+                                hideSelectedPlayer(position2, playerid);
+                                var dropped = ui.draggable;
+                                var droppedOn = $(this);
+                                $(dropped).detach().css({top: 13, right: 20, position: 'absolute'}).appendTo(droppedOn);
+                            }
+                        }
+                    }
+                }
+            });
+
+            //this function will hide the div from other side which have been already selected and dropped from another side
+            function hideSelectedPlayer(positionID, playerID) {
+                if (positionID == 'right') {
+                    $("#left" + playerID).hide(500);
+                } else if (positionID == 'left') {
+                    $("#right" + playerID).hide(500);
+                }
+            }
+            //if both players are from same (side) list then this will be reverted back
+            function revertPlayer(positionID) {
+                if ($('div[data-position="' + positionID + '"]').parent().attr('id') == 'right') {
+                    $("#right" + playerid).draggable({revert: true});
+                } else if ($('div[data-position="' + positionID + '"]').parent().attr('id') == 'left') {
+                    $("#left" + playerid).draggable({revert: true});
+                }
+            }
+            //this will set revert false
+            function revertFalse(playerID) {
+                $("#right" + playerID).draggable({revert: false});
+                $("#left" + playerID).draggable({revert: false});
+            }
+        </script>
+    </body>
+</html>
